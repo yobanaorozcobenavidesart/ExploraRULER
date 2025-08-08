@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>ExploraRULER</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1 {
+      color: gold;
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+    }
+
+    .card {
+      background-color: #222;
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 15px;
+      max-width: 800px;
+      box-shadow: 0 0 15px gold;
+    }
+
+    button {
+      margin: 10px;
+      padding: 12px 24px;
+      font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+      background-color: gold;
+      color: black;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1em;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background-color: white;
+      color: black;
+      transform: scale(1.05);
+    }
+
+    .step {
+      font-size: 1.5em;
+      color: gold;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .situation {
+      font-size: 1.4em;
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #333;
+      border-radius: 12px;
+      border-left: 6px solid gold;
+    }
+
+    .options-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .option-btn {
+      min-width: 180px;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .emotion-grid {
+      width: 100%;
+      max-width: 600px;
+      height: 500px;
+      margin: 30px auto;
+      position: relative;
+      background-color: #111;
+      border: 3px solid gold;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .emotion-axis {
+      position: absolute;
+      background-color: gold;
+    }
+
+    .x-axis {
+      width: 100%;
+      height: 3px;
+      bottom: 50%;
+      left: 0;
+    }
+
+    .y-axis {
+      width: 3px;
+      height: 100%;
+      left: 50%;
+      top: 0;
+    }
+
+    .axis-label {
+      position: absolute;
+      color: gold;
+      font-weight: bold;
+      font-size: 1.1em;
+      background-color: rgba(0,0,0,0.7);
+      padding: 2px 8px;
+      border-radius: 5px;
+    }
+
+    .x-label-left {
+      bottom: 47%;
+      left: 10%;
+    }
+
+    .x-label-right {
+      bottom: 47%;
+      right: 10%;
+    }
+
+    .y-label-top {
+      top: 10%;
+      left: 51%;
+    }
+
+    .y-label-bottom {
+      bottom: 10%;
+      left: 51%;
+    }
+
+    .quadrant-label {
+      position: absolute;
+      color: rgba(255, 215, 0, 0.5);
+      font-size: 1.1em;
+      font-weight: bold;
+      text-align: center;
+      width: 120px;
+    }
+
+    .q1 { top: 20%; right: 15%; } /* Agradable - Alta energía */
+    .q2 { top: 20%; left: 15%; }  /* Desagradable - Alta energía */
+    .q3 { bottom: 20%; left: 15%; } /* Desagradable - Baja energía */
+    .q4 { bottom: 20%; right: 15%; } /* Agradable - Baja energía */
+
+    .emotion-point {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      transition: all 0.3s;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5em;
+    }
+
+    .emotion-name {
+      position: absolute;
+      color: white;
+      font-size: 1em;
+      font-weight: bold;
+      transform: translate(-50%, -50%);
+      text-shadow: 1px 1px 3px black;
+      z-index: 5;
+      background-color: rgba(0,0,0,0.7);
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .age-selector {
+      margin: 20px 0;
+    }
+
+    .age-btn {
+      background-color: #444;
+      color: white;
+      font-size: 1.2em;
+      padding: 15px 25px;
+    }
+
+    .age-btn.selected {
+      background-color: gold;
+      color: black;
+    }
+
+    .progress-container {
+      width: 100%;
+      background-color: #333;
+      border-radius: 10px;
+      margin: 20px 0;
+      height: 20px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, gold, orange);
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.5s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: black;
+      font-weight: bold;
+      font-size: 0.8em;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      
+      h1 {
+        font-size: 1.8em;
+      }
+      
+      .card {
+        padding: 15px;
+      }
+      
+      .options-container {
+        flex-direction: column;
+      }
+      
+      .option-btn {
+        width: 100%;
+      }
+      
+      .quadrant-label {
+        font-size: 0.9em;
+        width: 100px;
+      }
+      
+      .emotion-grid {
+        height: 400px;
+      }
+    }
+
+    footer {
+      background-color: #000;
+      color: #ccc;
+      padding: 30px 20px;
+      font-size: 0.8rem;
+      text-align: center;
+      line-height: 1.5;
+      border-top: 2px solid #ff6f00;
+      margin-top: 40px;
+      font-family: 'Playfair Display', serif;
+    }
+
+    footer strong {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    footer em {
+      color: #ffa726;
+      font-style: normal;
+      font-weight: 400;
+    }
+
+    footer a {
+      color: #F6BE00;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .enlaces-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .enlaces-footer a {
+      white-space: nowrap;
+    }
+
+    .cc-logo img {
+      vertical-align: middle;
+      height: 20px;
+      margin: 0 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>ExploraRULER</h1>
+  
+  <div style="text-align: center; margin-top: -1px; margin-bottom: 30px;">
+      <img src="https://i.postimg.cc/fTY3xr8f/f.jpg"
+           alt="Imagen decorativa"
+           style="max-width: 150px; border: 3px solid gold; border-radius: 10px; box-shadow: 0 0 15px gold;">
+  </div>
+  
+  <section style="font-family: Arial, sans-serif; max-width: 800px; margin: auto; line-height: 1.6;">
+   
+    <p style="font-size: 1.1em;">
+        Es una herramienta visual que permite identificar y clasificar nuestras emociones 
+        según dos ejes principales: <strong>nivel de energía</strong> (alta o baja) y <strong>grado de comodidad</strong> (agradable o desagradable). 
+        Utiliza colores y emojis para facilitar la comprensión, haciéndola accesible para niños, jóvenes y adultos.
+    </p>
+    <p style="font-size: 1.1em;">
+        Su objetivo es ayudarnos a <strong>reconocer, comprender y regular nuestras emociones</strong> de manera efectiva, 
+        desarrollando así la inteligencia emocional y mejorando nuestras interacciones diarias.
+    </p>
+
+   <h3 style="color: #FFD700;">🌟 Beneficios de usar el Medidor Emocional</h3>
+
+    <ul style="list-style: none; padding-left: 0; font-size: 1.05em;">
+        <li>🧠 <strong>Desarrollo de la inteligencia emocional</strong> – Favorece la identificación precisa de emociones propias y ajenas.</li>
+        <li>🎯 <strong>Mejor toma de decisiones</strong> – Ayuda a responder de forma consciente en lugar de reaccionar impulsivamente.</li>
+        <li>🤝 <strong>Fortalecimiento de las relaciones</strong> – Mejora la comunicación y la empatía.</li>
+        <li>😌 <strong>Regulación emocional</strong> – Proporciona estrategias para manejar el estrés, la ansiedad y la frustración.</li>
+        <li>📈 <strong>Incremento del bienestar</strong> – Promueve un estado mental más equilibrado y saludable.</li>
+    </ul>
+</section>
+
+
+  <div class="card" id="age-selection">
+    <h2>¡Elige tu grupo de edad!</h2>
+    <div class="age-selector">
+      <button class="age-btn" onclick="selectAge('children')">Niños👧🧒</button>
+      <button class="age-btn" onclick="selectAge('teens')">Jóvenes🧑</button>
+      <button class="age-btn" onclick="selectAge('adults')">Adultos👩</button>
+    </div>
+  </div>
+
+  <div class="card" id="game" style="display:none;">
+    <!-- Aquí se mostrará el contenido del juego -->
+  </div>
+
+  <footer>
+    © 2024-2025 — Herramientas del Proyecto de Investigación: <strong>*Emociones en el Aula*</strong><br>
+    Propuesta educativa y cultural creada por <strong>Yobana Orozco Benavides</strong>, Escritora | Docente | Gestora de proyectos artísticos y pedagógicos<br><br>
+    
+    Licencia: 
+    <em>Creative Commons Atribución-NoComercial 4.0 Internacional (CC BY-NC 4.0)</em>
+    <span class="cc-logo">
+      <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">
+        <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC Logo">
+      </a>
+    </span>
+    <br>
+    Uso libre con fines educativos — <strong>prohibido uso comercial</strong><br><br>
+
+    Más información de la autora: 
+    <a href="https://yobanaorozcoartista.bio.link/" target="_blank" rel="noopener">yobanaorozcoartista.bio.link</a>
+
+    <div class="enlaces-footer">
+      <a href="https://orcid.org/0009-0002-9253-6429" target="_blank">ORCID</a>
+      <a href="https://www.webofscience.com/wos/?mode=Nextgen&path=%2Fwos%2Fauthor%2Frecord%2FLLM-9647-2024&IsProductCode=Yes&Init=Yes&DestApp=UA&Func=Frame&action=transfer&SrcApp=CR&SID=USW2EC0AFFb0eJYIUmqxKCgZWIVbn" target="_blank">Web of Science</a>
+      <a href="https://account.ncbi.nlm.nih.gov/?back_url=https%3A%2F%2Fwww.ncbi.nlm.nih.gov%2Fmyncbi%2F" target="_blank">NCBI</a>
+      <a href="https://es.slideshare.net/YOBANAOROZCO" target="_blank">SlideShare</a>
+      <a href="https://hq.ssrn.com/login/authentication.cfm?rectype=edit&perinf=y&partid=7786766" target="_blank">SSRN</a>
+      <a href="https://www.researchgate.net/" target="_blank">ResearchGate</a>
+      <a href="https://siise.bibliotecanacional.gov.co/siise/Login?ReturnUrl=%2fsiise%2fSeleccionAdquisiciones%2fSolicitudISSN%2fIndex" target="_blank">SIISE</a>
+      <a href="https://scientificrc.org/index.php/src/login?source=%2Findex.php%2Fsrc%2Fsubmission%2Fwizard" target="_blank">Scientific RC</a>
+      <a href="https://www.openaire.eu/annual-reports" target="_blank">OpenAIRE</a>
+      <a href="https://zenodo.org/" target="_blank">Zenodo</a>
+      <a href="https://sso.anii.org.uy/oxauth/login.htm" target="_blank">ANII</a>
+      <a href="https://rizoma.conahcyt.mx/acerca-de-mi/mi-perfil" target="_blank">Rizoma CONAHCYT</a>
+      <a href="https://papersubmission.scirp.org/paper/showAddPaper" target="_blank">SCIRP Submission</a>
+      <a href="https://utolima.academia.edu/YOBANAOROZCOBENAVIDES" target="_blank">Academia.edu</a>
+      <a href="https://www.studocu.com/co/user/yobana-orozco-benavides/15382735?origin=user-menu" target="_blank">Studocu</a>
+      <a href="https://www.calameo.com/accounts/7997056" target="_blank">Calameo</a>
+      <a href="https://www.amazon.com.mx/stores/YOBANA-OROZCO-BENAVIDES/author/B0CZG5RS1T?ref=ap_rdr&isDramIntegrated=true&shoppingPortalEnabled=true" target="_blank">Amazon</a>
+    </div>
+  </footer>
+
+  <script>
+    // Situaciones por grupo de edad con emojis
+    const situaciones = {
+      children: [
+        "Tu mejor amigo no quiere jugar contigo hoy 😢",
+        "Ganas el primer lugar en un concurso de dibujo 🏆🎨",
+        "Se te pierde tu juguete favorito 🧸💔",
+        "Tu maestra te felicita frente a toda la clase 👩‍🏫🌟",
+        "Un compañero se burla de tu peinado 😳💇",
+        "Tus padres te sorprenden con un regalo especial 🎁😊",
+        "Te caes en el patio del colegio y todos se ríen 🤕😅",
+        "Te invitan a una fiesta de cumpleaños sorpresa 🎉🎂"
+      ],
+      teens: [
+        "No te invitan a una reunión a la que van todos tus amigos 😞👥",
+        "Sacaste la mejor nota en un examen difícil 💯📚",
+        "Alguien publica algo feo sobre ti en redes sociales 📱😠",
+        "Te eligen como representante de tu curso 🎓👍",
+        "Tus padres revisan tu teléfono sin permiso 📲🙄",
+        "Logras algo que creías imposible (deportes, arte, etc.) 🏅✨",
+        "Un profesor te trata injustamente frente a la clase 👨‍🏫😤",
+        "Recibes un cumplido inesperado de alguien que admiras 💬😊",
+        "Te dejan de hablar sin explicación 🗣️❌",
+        "Ganas una competencia importante para ti 🏆🎯",
+        "Alguien difunde un secreto tuyo 🤫😳",
+        "Te ofrecen ayuda cuando más lo necesitabas 🤝❤️",
+        "Te critican por algo que te esforzaste mucho en hacer 💪😔"
+      ],
+      adults: [
+        "Tu jefe reconoce públicamente tu buen trabajo 👔🏆",
+        "Te rechazan para un trabajo que realmente querías 💼😞",
+        "Un desconocido te ayuda en un momento difícil 🆘🙏",
+        "Descubres que un amigo cercano habló mal de ti 🗣️🔪",
+        "Logras un objetivo profesional importante 🎯💼",
+        "Tu pareja olvida una fecha especial para ti 💑📅",
+        "Recibes una crítica constructiva que te ayuda a mejorar 📝👍",
+        "Alguien te hace un favor importante sin pedir nada a cambio 🤝❤️",
+        "Te engañan en una transacción importante 💰😠",
+        "Tu equipo completa con éxito un proyecto difícil 👥✅",
+        "Un familiar te hace sentir menospreciado 👨‍👩‍👧‍👦😔",
+        "Recibes una noticia inesperada que cambia tus planes 📰🔄",
+        "Alguien confía en ti para un asunto importante 🤝💼",
+        "Te sientes excluido en tu propio grupo de amigos 👥🚫",
+        "Alcanzas una meta personal que llevabas años persiguiendo 🎯✨",
+        "Un error pequeño tiene consecuencias mayores en tu trabajo ⚠️😫",
+        "Un antiguo alumno te agradece por haberlo ayudado años atrás 👨‍🎓🙏",
+        "Te das cuenta que has malinterpretado una situación importante 🤔🔄"
+      ]
+    };
+
+    const pasos = {
+      children: [
+        {
+          label: "Paso 1: Reconocer 👀",
+          pregunta: "¿Qué sientes en tu cuerpo?",
+          opciones: [
+            "🤒 Nudo en la garganta",
+            "🤲 Manos sudorosas",
+            "😄 Ganas de reír",
+            "😢 Ganas de llorar",
+            "💓 Corazón acelerado"
+          ]
+        },
+        {
+          label: "Paso 2: Entender 🤔",
+          pregunta: "¿Por qué te sientes así?",
+          opciones: [
+            "😢 Porque me dolió",
+            "😮 Porque fue sorpresa",
+            "😨 Porque me asusté",
+            "😊 Porque me alegró",
+            "😠 Porque me enojó"
+          ]
+        },
+        {
+          label: "Paso 3: Nombrar 🏷️",
+          pregunta: "¿Qué emoción estás sintiendo?",
+          opciones: [
+            "😊 Alegría",
+            "😢 Tristeza",
+            "😠 Enojo",
+            "😨 Miedo",
+            "😲 Sorpresa",
+            "😳 Vergüenza",
+            "🦸 Orgullo"
+          ]
+        },
+        {
+          label: "Paso 4: Expresar 💬",
+          pregunta: "¿Cómo puedes expresar lo que sientes?",
+          opciones: [
+            "🗣️ Hablar con alguien",
+            "📝 Escribir un diario",
+            "🎨 Hacer un dibujo",
+            "🎵 Escuchar música",
+            "🧘 Respirar profundo"
+          ]
+        },
+        {
+          label: "Paso 5: Regular ✨",
+          pregunta: "¿Qué te haría sentir mejor?",
+          opciones: [
+            "🚶 Salir a caminar",
+            "🫂 Pedir un abrazo",
+            "🎮 Jugar algo",
+            "📚 Leer un cuento",
+            "🎧 Escuchar música alegre"
+          ]
+        }
+      ],
+      teens: [
+        {
+          label: "Paso 1: Reconocer",
+          pregunta: "¿Qué sensaciones físicas notas?",
+          opciones: [
+            "Tensión muscular",
+            "Calor en la cara",
+            "Latidos acelerados",
+            "Sonrisa espontánea",
+            "Nudo en la garganta"
+          ]
+        },
+        {
+          label: "Paso 2: Entender",
+          pregunta: "¿Qué pensamientos tienes?",
+          opciones: [
+            "Esto es injusto",
+            "¡Qué bien!",
+            "No sé cómo reaccionar",
+            "Me siento valorado",
+            "Quiero alejarme"
+          ]
+        },
+        {
+          label: "Paso 3: Nombrar",
+          pregunta: "¿Qué emoción estás sintiendo?",
+          opciones: [
+            "Alegría",
+            "Tristeza",
+            "Enojo",
+            "Miedo",
+            "Sorpresa",
+            "Vergüenza",
+            "Orgullo"
+          ]
+        },
+        {
+          label: "Paso 4: Expresar",
+          pregunta: "¿Cómo expresarías esto?",
+          opciones: [
+            "Hablar con un amigo",
+            "Escribir mis sentimientos",
+            "Hacer ejercicio",
+            "Practicar respiración",
+            "Expresarme artísticamente"
+          ]
+        },
+        {
+          label: "Paso 5: Regular",
+          pregunta: "¿Qué acción te ayudaría?",
+          opciones: [
+            "Reflexionar un momento",
+            "Buscar soluciones",
+            "Agradecer lo positivo",
+            "Pedir ayuda",
+            "Aprender de esto"
+          ]
+        }
+      ],
+      adults: [
+        {
+          label: "Paso 1: Reconocer",
+          pregunta: "¿Qué sensaciones físicas notas?",
+          opciones: [
+            "Tensión muscular",
+            "Calor en la cara",
+            "Latidos acelerados",
+            "Sonrisa espontánea",
+            "Nudo en la garganta"
+          ]
+        },
+        {
+          label: "Paso 2: Entender",
+          pregunta: "¿Qué pensamientos pasan por tu mente?",
+          opciones: [
+            "Esto es injusto",
+            "¡Qué bien!",
+            "No sé cómo reaccionar",
+            "Me siento valorado",
+            "Quiero alejarme"
+          ]
+        },
+        {
+          label: "Paso 3: Nombrar",
+          pregunta: "¿Qué emoción estás sintiendo principalmente?",
+          opciones: [
+            "Alegría",
+            "Tristeza",
+            "Enojo",
+            "Miedo",
+            "Sorpresa",
+            "Vergüenza",
+            "Orgullo"
+          ]
+        },
+        {
+          label: "Paso 4: Expresar",
+          pregunta: "¿Cómo puedes expresar esta emoción de forma saludable?",
+          opciones: [
+            "Hablar con alguien de confianza",
+            "Escribir mis sentimientos",
+            "Hacer actividad física",
+            "Practicar respiración profunda",
+            "Expresarme a través del arte"
+          ]
+        },
+        {
+          label: "Paso 5: Regular",
+          pregunta: "¿Qué acción te ayudaría a manejar esta emoción?",
+          opciones: [
+            "Tomar un tiempo para reflexionar",
+            "Buscar soluciones prácticas",
+            "Agradecer por lo positivo",
+            "Pedir ayuda profesional",
+            "Aprender de la experiencia"
+          ]
+        }
+      ]
+    };
+
+    // Mapa de emociones con coordenadas (x: agradable/desagradable, y: energía) y colores
+    const emociones = {
+      "😊 Alegría": { x: 80, y: 70, color: "#FFD700", tipo: "agradable", energia: "alta" },
+      "😄 Euforia": { x: 85, y: 85, color: "#FFC000", tipo: "agradable", energia: "alta" },
+      "🦸 Orgullo": { x: 75, y: 65, color: "#32CD32", tipo: "agradable", energia: "alta" },
+      "😍 Amor": { x: 80, y: 60, color: "#FF69B4", tipo: "agradable", energia: "alta" },
+      "😠 Enojo": { x: 25, y: 75, color: "#FF4500", tipo: "desagradable", energia: "alta" },
+      "🤬 Ira": { x: 15, y: 85, color: "#FF0000", tipo: "desagradable", energia: "alta" },
+      "😤 Frustración": { x: 30, y: 70, color: "#CD5C5C", tipo: "desagradable", energia: "alta" },
+      "😨 Miedo": { x: 20, y: 65, color: "#9370DB", tipo: "desagradable", energia: "alta" },
+      "😢 Tristeza": { x: 25, y: 30, color: "#1E90FF", tipo: "desagradable", energia: "baja" },
+      "😞 Desánimo": { x: 30, y: 25, color: "#4682B4", tipo: "desagradable", energia: "baja" },
+      "😔 Soledad": { x: 20, y: 20, color: "#4169E1", tipo: "desagradable", energia: "baja" },
+      "😩 Agotamiento": { x: 35, y: 35, color: "#6495ED", tipo: "desagradable", energia: "baja" },
+      "😌 Calma": { x: 70, y: 35, color: "#20B2AA", tipo: "agradable", energia: "baja" },
+      "😴 Paz": { x: 75, y: 25, color: "#3CB371", tipo: "agradable", energia: "baja" },
+      "🛌 Relajación": { x: 65, y: 30, color: "#2E8B57", tipo: "agradable", energia: "baja" },
+      "😇 Satisfacción": { x: 80, y: 40, color: "#98FB98", tipo: "agradable", energia: "baja" },
+      "😲 Sorpresa": { x: 60, y: 65, color: "#FFA500", tipo: "neutral", energia: "alta" },
+      "😳 Vergüenza": { x: 35, y: 40, color: "#FF69B4", tipo: "desagradable", energia: "media" }
+    };
+
+    let pasoActual = 0;
+    let respuestas = [];
+    let situacionActual = "";
+    let grupoEdad = "";
+    let emocionSeleccionada = "";
+
+    function selectAge(ageGroup) {
+      grupoEdad = ageGroup;
+      document.querySelectorAll('.age-btn').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      event.target.classList.add('selected');
+      document.getElementById('age-selection').style.display = 'none';
+      document.getElementById('game').style.display = 'block';
+      reiniciarJuego();
+    }
+
+    function elegirSituacion() {
+      const grupo = situaciones[grupoEdad];
+      const indice = Math.floor(Math.random() * grupo.length);
+      situacionActual = grupo[indice];
+    }
+
+    function mostrarPaso() {
+      const paso = pasos[grupoEdad][pasoActual];
+      let html = `<div class="progress-container"><div class="progress-bar" style="width: ${(pasoActual/pasos[grupoEdad].length)*100}%">Paso ${pasoActual+1} de ${pasos[grupoEdad].length}</div></div>`;
+      html += `<div class="step">${paso.label}</div>`;
+      
+      if (pasoActual === 0) {
+        html += `<div class="situation">"${situacionActual}"</div>`;
+      }
+      
+      html += `<p>${paso.pregunta}</p><div class="options-container">`;
+      
+      paso.opciones.forEach(opcion => {
+        html += `<button class="option-btn" onclick="seleccionarOpcion('${opcion.replace(/'/g, "\\'")}')">${opcion}</button>`;
+      });
+      
+      document.getElementById("game").innerHTML = html;
+      
+      // Mostrar diagrama de emociones en el paso 3 (Nombrar)
+      if (pasoActual === 2) {
+        mostrarDiagramaEmociones();
+      }
+    }
+
+    function mostrarDiagramaEmociones() {
+      const gameDiv = document.getElementById("game");
+      let html = `<div class="emotion-grid">
+        <div class="emotion-axis x-axis"></div>
+        <div class="emotion-axis y-axis"></div>
+        <div class="axis-label x-label-left">😞 Desagradable</div>
+        <div class="axis-label x-label-right">😊 Agradable</div>
+        <div class="axis-label y-label-top">⚡ Alta energía</div>
+        <div class="axis-label y-label-bottom">🐢 Baja energía</div>
+        <div class="quadrant-label q1">Agradable<br>Alta energía</div>
+        <div class="quadrant-label q2">Desagradable<br>Alta energía</div>
+        <div class="quadrant-label q3">Desagradable<br>Baja energía</div>
+        <div class="quadrant-label q4">Agradable<br>Baja energía</div>`;
+      
+      // Agregar puntos de emociones
+      for (const [nombre, datos] of Object.entries(emociones)) {
+        if (grupoEdad === 'children' && nombre.length > 10) continue; // Mostrar solo emociones simples para niños
+        
+        html += `<div class="emotion-point" style="left:${datos.x}%; top:${100-datos.y}%; background-color:${datos.color}" 
+                onclick="seleccionarEmocion('${nombre.replace(/'/g, "\\'")}')" title="${nombre}">${nombre.split(' ')[0]}</div>`;
+        html += `<div class="emotion-name" style="left:${datos.x}%; top:${100-datos.y-7}%">${nombre}</div>`;
+      }
+      
+      html += `</div><p>Selecciona la emoción que mejor describa lo que sientes:</p>`;
+      gameDiv.innerHTML += html;
+    }
+
+    function seleccionarEmocion(emocion) {
+      emocionSeleccionada = emocion;
+      const puntos = document.querySelectorAll('.emotion-point');
+      puntos.forEach(p => {
+        p.style.transform = 'translate(-50%, -50%) scale(1)';
+        p.style.boxShadow = 'none';
+      });
+      
+      // Resaltar la emoción seleccionada
+      const punto = document.querySelector(`.emotion-point[title="${emocion}"]`);
+      punto.style.transform = 'translate(-50%, -50%) scale(1.5)';
+      punto.style.boxShadow = `0 0 15px ${emociones[emocion].color}`;
+      
+      // Continuar después de seleccionar emoción
+      setTimeout(() => {
+        seleccionarOpcion(emocion);
+      }, 500);
+    }
+
+    function seleccionarOpcion(opcion) {
+      respuestas.push({ paso: pasos[grupoEdad][pasoActual].label, respuesta: opcion });
+      pasoActual++;
+      
+      if (pasoActual < pasos[grupoEdad].length) {
+        mostrarPaso();
+      } else {
+        mostrarResumen();
+      }
+    }
+
+    function mostrarResumen() {
+      const emocionData = emociones[emocionSeleccionada] || { x: 50, y: 50, color: "white" };
+      
+      let html = `<h2>¡Has completado el Modelo RULER! 🎉</h2>
+        <div class="situation">Situación trabajada: "${situacionActual}"</div>
+        
+        <div class="emotion-grid">
+          <div class="emotion-axis x-axis"></div>
+          <div class="emotion-axis y-axis"></div>
+          <div class="axis-label x-label-left">😞 Desagradable</div>
+          <div class="axis-label x-label-right">😊 Agradable</div>
+          <div class="axis-label y-label-top">⚡ Alta energía</div>
+          <div class="axis-label y-label-bottom">🐢 Baja energía</div>
+          <div class="quadrant-label q1">Agradable<br>Alta energía</div>
+          <div class="quadrant-label q2">Desagradable<br>Alta energía</div>
+          <div class="quadrant-label q3">Desagradable<br>Baja energía</div>
+          <div class="quadrant-label q4">Agradable<br>Baja energía</div>
+          <div class="emotion-point" style="left:${emocionData.x}%; top:${100-emocionData.y}%; 
+               background-color:${emocionData.color}; transform:translate(-50%, -50%) scale(1.5);
+               box-shadow: 0 0 15px ${emocionData.color};">${emocionSeleccionada.split(' ')[0]}</div>
+          <div class="emotion-name" style="left:${emocionData.x}%; top:${100-emocionData.y-7}%;
+               color:white; font-weight:bold; background-color:${emocionData.color};">${emocionSeleccionada}</div>
+        </div>
+        
+        <h3>Resumen de tus respuestas:</h3><ul>`;
+      
+      respuestas.forEach(r => {
+        html += `<li><strong>${r.paso}:</strong> ${r.respuesta}</li>`;
+      });
+      
+      html += `</ul>
+        <p>¡Buen trabajo! Has identificado y gestionado tu emoción usando los 5 pasos del Modelo RULER. ✨</p>
+        <p><strong>Emoción seleccionada:</strong> ${emocionSeleccionada} (${emocionData.tipo === 'agradable' ? '😊 Agradable' : '😞 Desagradable'}, ${emocionData.energia === 'alta' ? '⚡ Alta energía' : '🐢 Baja energía'})</p>
+        <button onclick="reiniciarJuego()">Practicar con otra situación 🔄</button>
+        <button onclick="volverAEdad()">Cambiar grupo de edad 👥</button>`;
+      
+      document.getElementById("game").innerHTML = html;
+    }
+
+    function reiniciarJuego() {
+      pasoActual = 0;
+      respuestas = [];
+      emocionSeleccionada = "";
+      elegirSituacion();
+      mostrarPaso();
+    }
+
+    function volverAEdad() {
+      document.getElementById('age-selection').style.display = 'block';
+      document.getElementById('game').style.display = 'none';
+    }
+
+    // Iniciar mostrando selección de edad
+    document.getElementById('game').style.display = 'none';
+  </script>
+
+</body>
+</html>
